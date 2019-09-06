@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 export class HomeComponent implements OnInit, OnDestroy {
   activarDescanso = false;
   activo = false;
+  tiempo;
   activoBanio = false;
   activoNormal = false;
   activoReunion = false;
@@ -40,17 +41,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     else{
       this.comprobacionLocal();
       this.loginService.getFichaje(localStorage.getItem('nombreUsuario')).subscribe(data => {
-        console.log(data);
+
       });
-      this.tiempoRandom = Math.random() * (500000 - 360000 + 1) + (360000);
-      console.log(this.tiempoRandom);
+      // this.tiempoRandom = Math.random() * (600000 - 30*60*10000) + (360000);
+
       this.nombre = localStorage.getItem('nombreUsuario');
-      console.log(this.nombre);
-  
+
       this.setTimeout();
       Notification.requestPermission().then(function (result) {
   
-        console.log(result);
       });
   
       // Let's check if the browser supports notifications
@@ -96,9 +95,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
   descansoBanio() {
     if (!this.activo || this.activoBanio) {
-
+      this.activar = true;
       this.activo = true;
       this.activoBanio = true;
+      
+      
       const banio = document.getElementById('banio');
       if (this.activarDescanso === false) {
         if (localStorage.getItem('idBanio') === null) {
@@ -110,6 +111,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         banio.style.backgroundColor = 'lightblue';
         this.activarDescanso = true;
       } else {
+        this.activar = false;
         banio.style.backgroundColor = 'white';
         this.activarDescanso = false;
         this.activo = false;
@@ -126,6 +128,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
   descansoNormal() {
     if (!this.activo || this.activoNormal) {
+      this.activar = true;
       this.activo = true;
       this.activoNormal = true;
       const descanso = document.getElementById('normal');
@@ -145,6 +148,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.activoNormal = false;
         this.loginService.registroEnd(localStorage.getItem('idNormal')).subscribe(data => {
           localStorage.removeItem('idNormal');
+          this.activar = false;
         });
 
 
@@ -159,6 +163,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!this.activo || this.activoComida) {
       this.activo = true;
       this.activoComida = true;
+      this.activar = true;
       const descanso = document.getElementById('comida');
       if (this.activarDescanso === false) {
         if (localStorage.getItem('idComida') === null) {
@@ -173,6 +178,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.activarDescanso = false;
         this.activo = false;
         this.activoComida = false;
+        this.activar = false;
         this.loginService.registroEnd(localStorage.getItem('idComida')).subscribe(data => {
           localStorage.removeItem('idComida');
         });
@@ -187,6 +193,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
   descansoReunion() {
     if (!this.activo || this.activoReunion) {
+      this.activar = true;
       this.activo = true;
       this.activoReunion = true;
       const descanso = document.getElementById('reunion');
@@ -203,6 +210,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.activarDescanso = false;
         this.activo = false;
         this.activoNormal = false;
+        this.activar = false;
         this.loginService.registroEnd(localStorage.getItem('idReunion')).subscribe(data => {
           localStorage.removeItem('idReunion');
         });
@@ -217,10 +225,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   setTimeout() {
-    // let tiempo =  Math.random()*(500000-360000+1)+(360000);
 
-    this.userActivity = setTimeout(() => this.userInactive.next(undefined), 300000);
-  }
+    if(this.activar === false){
+      this.tiempo =  Math.random()*(30*60*1000-10*60*1000+1)+(10*60*1000);
+    this.userActivity = setTimeout(() => this.userInactive.next(undefined), this.tiempo);
+  }}
 
   @HostListener('window:mousemove') refreshUserState() {
 
@@ -228,9 +237,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.setTimeout();
   }
   openDialogTiempoExcedido() {
-    this.loginService.tiempoTotal(localStorage.getItem('nombreUsuario')).subscribe(data=>{
-      console.log(data)
-    })
+
+
     let dialogRef;
 
     dialogRef = this.dialog.open(TiempoExcedidoComponent, {
@@ -238,12 +246,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       width: '40%',
     });
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
+
       this.abierto = false;
+   
     });
 
   }
   openDialogSolicitar(): void {
+
     if (localStorage.getItem('idInactivo') === null) {
       this.loginService.registroAdd(localStorage.getItem('nombreUsuario'), 'inactivo').subscribe(data => {
         localStorage.setItem('idInactivo', data.toString());
@@ -258,10 +268,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       dialogRef = this.dialog.open(ComprobacionUsuarioComponent, {
       });
       dialogRef.afterClosed().subscribe(result => {
+
         this.loginService.registroEnd(localStorage.getItem('idInactivo')).subscribe(data => {
-            localStorage.removeItem('idInactivo')
+            localStorage.removeItem('idInactivo');
+
         });
-        console.log('The dialog was closed');
         this.abierto = false;
       });
     }

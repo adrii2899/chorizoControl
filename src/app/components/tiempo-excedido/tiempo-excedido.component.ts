@@ -1,3 +1,4 @@
+import { LoginService } from './../../services/login.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Component, OnInit } from '@angular/core';
 
@@ -8,7 +9,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TiempoExcedidoComponent implements OnInit {
 
-  constructor(private dialogRef: MatDialogRef<TiempoExcedidoComponent>) { }
+  tiempoTotal;
+  constructor(private dialogRef: MatDialogRef<TiempoExcedidoComponent>, private loginService: LoginService ) { }
   displayedColumns: string[] = ['item', 'cost'];
   transactions: any[] = [
     {item: 'Beach ball', cost: 4},
@@ -19,7 +21,24 @@ export class TiempoExcedidoComponent implements OnInit {
     {item: 'Swim suit', cost: 15},
   ];
 
+  descanso: any[] = [];
+
   ngOnInit() {
+    this.loginService.tiempoTotal(localStorage.getItem('nombreUsuario')).subscribe(data => {
+      this.tiempoTotal = data;
+    });
+    setTimeout(() => {
+      this.loginService.TiempoTotalDescanso(localStorage.getItem('nombreUsuario')).subscribe((data: any) => {
+        this.descanso = [
+          {nombre: 'Baño', tiempoTotal: data.ttb, tiempoExcedido: data.teb},
+          {nombre: 'Normal', tiempoTotal: data.ttn, tiempoExcedido: data.ten},
+          {nombre: 'Reunion', tiempoTotal: data.ttr},
+          {nombre: 'Comida', tiempoTotal: data.ttc, tiempoExcedido: data.tec},
+        ];
+        console.log(this.descanso)
+      });
+    }, 1000);
+
   }
 
   /** Gets the total cost of all transactions. */

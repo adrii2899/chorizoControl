@@ -11,7 +11,7 @@ export class LoginService {
     'Content-Type': 'application/json',
     // "Access-Control-Allow-Origin": "*"
   });
-  private baseurl = 'http://213.37.60.68:6969';
+  private baseurl = 'http://192.168.1.77:8080';
   //   http://2.153.125.117:6969/usuario
   //   http://192.168.1.46:8080
   constructor(private http: HttpClient,) { }
@@ -37,6 +37,9 @@ export class LoginService {
 
   tiempoTotal(nombreUsuario: string){
     return this.http.post<number>(this.baseurl + "/tiempoTotal/"+ nombreUsuario, { headers: this.httpHeaders })
+  }
+  TiempoTotalDescanso(nombreUsuario: string){
+    return this.http.post<[{}]>(this.baseurl + "/tiempoIndividual/"+ nombreUsuario, { headers: this.httpHeaders })
   }
   
 }
